@@ -1,8 +1,37 @@
-import React from "react";
-import { Form, Button, Typography, Select } from "antd";
+import React, { useState } from "react";
+import { Form, Button, Typography, Select, Input, Divider, Space } from "antd";
 import FormAtt from "./FormAtt";
+import {
+  urlDataActions,
+  useUrlDataState,
+  useDispatchUrlData,
+} from "../reducers/url.reducer";
+import { PlusOutlined } from "@ant-design/icons";
 
-const NewForm = ({ handleChange, handleSubmit }) => {
+const NewForm = () => {
+  const urlDataState = useUrlDataState();
+  const urlDataDispatch = useDispatchUrlData();
+  console.log(urlDataState);
+  const [items, setItems] = useState([
+    "v3.explorug.com/explorug.html",
+    "createyourrug.explorug.com/explorug.html",
+  ]);
+  const [name, setName] = useState("");
+
+  const onNameChange = (event) => {
+    setName(event.target.value);
+  };
+  const addItem = (e) => {
+    e.preventDefault();
+    if (!name) return;
+    var nameStr = name;
+    if (name && name[name.length - 1] !== "/") {
+      nameStr = nameStr + "/";
+    }
+    setItems([...items, nameStr]);
+    setName("");
+  };
+
   return (
     <div>
       <div className="heading">
@@ -19,58 +48,118 @@ const NewForm = ({ handleChange, handleSubmit }) => {
         wrapperCol={{ span: 8 }}
         initialValues={{ remember: true }}
         autoComplete="off"
-        onFinish={handleSubmit}
+        onFinish={() => {
+          urlDataDispatch({ type: urlDataActions.SET_URL });
+        }}
       >
-        <FormAtt
-          label="URL Prefix"
-          name="urlPrefix"
-          handleChange={handleChange}
-        />
-        <FormAtt
-          label="Page Name"
-          name="pageName"
-          handleChange={handleChange}
-        />
-        <FormAtt
-          label="Original Design"
-          name="originalDesign"
-          handleChange={handleChange}
-        />
-        <FormAtt
-          label="Variation Name"
-          name="variationName"
-          handleChange={handleChange}
-        />
-        <FormAtt
-          label="Room Name"
-          name="roomName"
-          handleChange={handleChange}
-        />
-
         <Form.Item
-          name="scroll"
-          label="Scroll To"
+          name="urlPrefix"
+          label="URL Prefix"
           rules={[
             {
               required: true,
+              message: `Please choose URL!`,
             },
           ]}
         >
           <Select
-            style={{ width: "50%" }}
-            onChange={(value) => {
-              handleChange("scrollTo", value);
+            style={{
+              width: 300,
             }}
+            onChange={(value) =>
+              urlDataDispatch({
+                type: urlDataActions.SET_VALUE,
+                fieldName: "urlPrefix",
+                payload: value,
+              })
+            }
+            placeholder="Choose URL or create a custom one"
+            dropdownRender={(menu) => (
+              <>
+                {menu}
+                <Divider
+                  style={{
+                    margin: "8px 0",
+                  }}
+                />
+                <Space
+                  align="center"
+                  style={{
+                    padding: "0 8px 4px",
+                  }}
+                >
+                  <Input
+                    placeholder="Please enter custom url"
+                    value={name}
+                    onChange={onNameChange}
+                  />
+                  <Typography.Link
+                    onClick={addItem}
+                    style={{
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    <PlusOutlined /> Add URL
+                  </Typography.Link>
+                </Space>
+              </>
+            )}
           >
+            {items.map((item) => (
+              <Select.Option key={item}>{item}</Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        <FormAtt label="Page Name" name="pageName" />
+        <FormAtt label="Original Design" name="originalDesign" />
+        <Form.Item
+          label="Variation Name"
+          name="variationName"
+          onChange={(e) =>
+            urlDataDispatch({
+              type: urlDataActions.SET_VALUE,
+              fieldName: "variationName",
+              payload: e.target.value,
+            })
+          }
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label="Room Name"
+          name="roomName"
+          onChange={(e) =>
+            urlDataDispatch({
+              type: urlDataActions.SET_VALUE,
+              fieldName: "roomName",
+              payload: e.target.value,
+            })
+          }
+        >
+          <Input />
+        </Form.Item>
+
+        <Form.Item name="scroll" label="Scroll To">
+          <Select
+            placeholder="Select your option"
+            style={{ width: "60%" }}
+            onChange={(value) =>
+              urlDataDispatch({
+                type: urlDataActions.SET_VALUE,
+                fieldName: "scrollTo",
+                payload: value,
+              })
+            }
+          >
+            <Select.Option value=""></Select.Option>
             <Select.Option value="design-view-container">
-              Design View Container
+              Design View
             </Select.Option>
-            <Select.Option value="room-view-container">
-              Room View Container
-            </Select.Option>
-            <Select.Option value="cyr-collection">CYR Collection</Select.Option>
+            <Select.Option value="room-view-container">Room View</Select.Option>
+            <Select.Option value="cyr-collection"> Collection</Select.Option>
             <Select.Option value="cyr-designvariations">
-              CYR Design Variations
+              Design Variations
             </Select.Option>
           </Select>
         </Form.Item>
