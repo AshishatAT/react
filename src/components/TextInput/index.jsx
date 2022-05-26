@@ -1,10 +1,10 @@
 import React from "react";
 import { Form, Input } from "antd";
-import { urlDataActions, useDispatchUrlData } from "../reducers/url.reducer";
+import { urlDataActions, useDispatchUrlData,useUrlDataState } from "../../reducers/url.reducer";
 
-const FormAtt = ({ label, name }) => {
-  const urlDataDispatch = useDispatchUrlData();
 
+const TextInput = ({ label, name, required = false,value }) => {
+    const urlDataDispatch = useDispatchUrlData();
   return (
     <Form.Item
       label={label}
@@ -18,14 +18,14 @@ const FormAtt = ({ label, name }) => {
       }}
       rules={[
         {
-          required: true,
+          required: required,
           message: `Please input ${name}!`,
         },
       ]}
     >
-      <Input />
+      <Input value={value} />
     </Form.Item>
-  );
-};
+  )
+}
 
-export default FormAtt;
+export default TextInput
